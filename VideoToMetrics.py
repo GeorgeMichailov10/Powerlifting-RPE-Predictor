@@ -1,6 +1,57 @@
 import cv2
 import mediapipe as mp
 
+#------------------Dat Extraction Experiments-----------
+"""Function for getting xyz coordinates of all tracked bodypoints"""
+def get_points_video(video_path):
+    mp_pose = mp.solutions.pose
+    pose = mp_pose.Pose(static_image_mode=False, model_complexity=0)
+    
+    cap = cv2.VideoCapture(video_path)
+
+    points = [[] for _ in range(32)]
+    frame_count = 0
+
+    while cap.isOpened():
+        ret, frame = cap.read()
+        if not ret:
+            break
+
+        frame_count += 1
+        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        results = pose.process(frame_rgb)
+        
+        if results.pose_landmarks:
+            landmarks = results.pose_landmarks.landmark
+            for i in range(32):
+                if i < len(landmarks):
+                    lm = landmarks[i]
+                    points[i].append((lm.x, lm.y, lm.z))
+                else:
+                    points[i].append(None)
+        else:
+            for i in range(32):
+                points[i].append(None)
+
+    cap.release()
+    pose.close()
+    return points, frame_count
+
+"""Function for determining which lift it is"""
+def determine_lift():
+    pass
+
+"""Function that calls correct pivot frame function"""
+
+"""Function for determining pivot frames for squat (start, bottom, stop)"""
+
+"""Function for determining pivot frames for bench (start, pause start, pause end, stop)"""
+
+"""Function for determining pivot frames for deadlift (start, top)"""
+
+"""Function for cropping point data to within relevant frames"""
+
+#-------------------Media Pipe testing-------------------
 
 def test_image_posing():
   mp_pose = mp.solutions.pose
@@ -82,6 +133,8 @@ def test_saved_video_posing():
   cap.release()
   cv2.destroyAllWindows()
   pose.close()
+
+
 
 if __name__ == "__main__":
     pass
