@@ -1,7 +1,15 @@
 import cv2
 import mediapipe as mp
+import json
 
 #------------------Dat Extraction Experiments-----------
+
+"""Manager function"""
+def main(video_path):
+    points = get_points_video(video_path)
+    lift = determine_lift(points)
+    cleaned_points = clean_point_data(lift, points)
+
 """Function for getting xyz coordinates of all tracked bodypoints"""
 def get_points_video(video_path):
     mp_pose = mp.solutions.pose
@@ -38,18 +46,49 @@ def get_points_video(video_path):
     return points, frame_count
 
 """Function for determining which lift it is"""
-def determine_lift():
+def determine_lift(points):
+    # Note: Hand Points: 15-22 inclusive; Shoulders: 11, 12; Hips: 23, 24;
+    # If hands at shoulder level/in line with shoulders: Squat
+    # If hands above shoulders/hips and shoulders pretty much horizontal: Bench
+    # If hands at hip level/ straight down: Deadlift 
     pass
 
+"""Function for cleaning/splitting frames into only what is relevant"""
+def clean_point_data(lift, points):
+    pivot_frames = get_pivot_frame_indices(lift, points)
+    return clean_point_data(points, pivot_frames)
+
 """Function that calls correct pivot frame function"""
+def get_pivot_frame_indices(lift, points):
+    if lift == 'squat':
+        return get_squat_pivot_frames(points)
+    elif lift == 'bench':
+        return get_bench_pivot_frames(points)
+    elif lift == 'deadlift':
+        return get_deadlift_pivot_frames(points)
 
 """Function for determining pivot frames for squat (start, bottom, stop)"""
+def get_squat_pivot_frames(points):
+    pass
 
 """Function for determining pivot frames for bench (start, pause start, pause end, stop)"""
+def get_bench_pivot_frames(points):
+    pass
 
 """Function for determining pivot frames for deadlift (start, top)"""
+def get_deadlift_pivot_frames(points):
+    pass
 
 """Function for cropping point data to within relevant frames"""
+def crop_to_pivot_frames(points, pivot_frames):
+    cleaned_points = []
+    for pair in pivot_frames:
+        curr_frame_range = []
+        for point_data in points:
+            curr_frame_range.append(point_data[pair[0]:pair[1]+1])
+        cleaned_points.append(curr_frame_range)
+    return cleaned_points
+            
 
 #-------------------Media Pipe testing-------------------
 
